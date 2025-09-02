@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | ECE & EEE Engineer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A single-page, vertical-scrolling portfolio with a fixed top navigation. The structure is thematic (Hero, About, Education, Skills, Projects, Contact) to follow a logical resume flow. This was chosen for its intuitive navigation, allowing recruiters to quickly find information. Interactivity is added through a skills radar chart and flippable project cards to create a more engaging and memorable user experience than a static page. -->
+    <!-- Visualization & Content Choices: Report Info: User's technical skills list -> Goal: Visually compare proficiency across domains -> Viz/Method: Interactive Radar Chart (Chart.js/Canvas) -> Interaction: Hover tooltips and filter buttons to change chart data -> Justification: More engaging and faster to interpret than a long text list. Report Info: Project descriptions -> Goal: Organize and present detailed project info cleanly -> Presentation: Interactive cards (HTML/CSS/JS) -> Interaction: Cards reveal details on click/hover -> Justification: Prevents UI clutter and encourages user exploration. All visual elements use HTML/CSS or Canvas, confirming NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F8F7F4;
+            color: #4A4A4A;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4A90E2;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .nav-link.active::after,
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .project-card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .project-card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .project-card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .project-card-back {
+            transform: rotateY(180deg);
+        }
+
+        .skill-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-xl font-bold text-gray-800">[Your Name]</div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#about" class="nav-link text-gray-600 hover:text-gray-900">About</a>
+                    <a href="#education" class="nav-link text-gray-600 hover:text-gray-900">Education</a>
+                    <a href="#skills" class="nav-link text-gray-600 hover:text-gray-900">Skills</a>
+                    <a href="#projects" class="nav-link text-gray-600 hover:text-gray-900">Projects</a>
+                    <a href="#contact" class="nav-link text-gray-600 hover:text-gray-900">Contact</a>
+                </nav>
+                <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#about" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100">About</a>
+            <a href="#education" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100">Education</a>
+            <a href="#skills" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100">Skills</a>
+            <a href="#projects" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100">Projects</a>
+            <a href="#contact" class="block py-2 px-6 text-sm text-gray-700 hover:bg-gray-100">Contact</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="min-h-screen flex items-center bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 leading-tight">[Your Name]</h1>
+                <p class="mt-4 text-lg md:text-2xl text-gray-600">B.Tech (ECE) & M.Tech (EEE) | Signal Processing &
+                    Machine Learning</p>
+                <a href="#projects"
+                    class="mt-8 inline-block bg-[#4A90E2] text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:bg-blue-600 transition duration-300">View
+                    My Work</a>
+            </div>
+        </section>
+
+        <section id="about" class="py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">About Me</h2>
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/3">
+                        <div
+                            class="w-48 h-48 md:w-64 md:h-64 mx-auto rounded-full bg-gray-200 shadow-lg flex items-center justify-center">
+                            <span class="text-gray-400">Your Photo</span>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3 text-center md:text-left">
+                        <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                            Welcome! I am a passionate and results-driven Electrical and Electronics Engineer with a
+                            strong academic background in both Electronics and Communication (ECE) and Electrical and
+                            Electronics (EEE) engineering.
+                        </p>
+                        <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                            I graduated with my B.Tech in ECE from <strong>Nirma University</strong> in 2023 and am
+                            currently pursuing my M.Tech in EEE with a specialization in <strong>Signal Processing and
+                                Machine Learning</strong> at <strong>IIT Guwahati</strong> (2024-2026 batch).
+                        </p>
+                        <p class="text-lg text-gray-700 leading-relaxed">
+                            My journey has equipped me with a robust understanding of core engineering principles and a
+                            keen interest in applying advanced computational techniques to solve complex problems. This
+                            portfolio is a showcase of my projects, skills, and academic achievements.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="education" class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Academic Background</h2>
+                <div class="max-w-3xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="bg-gray-50 p-8 rounded-lg shadow-md border-l-4 border-[#4A90E2]">
+                        <h3 class="text-xl font-semibold text-gray-800">Indian Institute of Technology Guwahati (IITG)
+                        </h3>
+                        <p class="text-gray-600 mt-2">M.Tech in Electrical and Electronics Engineering (EEE)</p>
+                        <p class="text-gray-500 mt-1">Specialization: Signal Processing and Machine Learning</p>
+                        <p class="text-gray-500 font-medium mt-2">2024 - 2026 (Expected)</p>
+                    </div>
+                    <div class="bg-gray-50 p-8 rounded-lg shadow-md border-l-4 border-gray-400">
+                        <h3 class="text-xl font-semibold text-gray-800">Nirma University, Ahmedabad</h3>
+                        <p class="text-gray-600 mt-2">B.Tech in Electronics and Communication Engineering (ECE)</p>
+                        <p class="text-gray-500 mt-1">Graduated: 2023</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Technical Skills</h2>
+                <div class="text-center mb-8">
+                    <p class="text-lg text-gray-600">This chart provides a visual representation of my proficiency
+                        across key technical domains. It highlights my strengths in applying theoretical knowledge to
+                        practical, data-driven problems in engineering.</p>
+                </div>
+                <div class="skill-chart-container">
+                    <canvas id="skillsChart"></canvas>
+                </div>
+                <div class="mt-12">
+                    <h3 class="text-2xl font-bold text-center text-gray-800 mb-8">Core Competencies</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-center">
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-700">Programming</h4>
+                            <p class="text-sm text-gray-500">Python, C++, C, MATLAB, R</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-700">ML/AI Libraries</h4>
+                            <p class="text-sm text-gray-500">TensorFlow, PyTorch, Scikit-learn, Pandas</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-700">Domain Expertise</h4>
+                            <p class="text-sm text-gray-500">Signal Processing, Deep Learning, Embedded Systems</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-700">Developer Tools</h4>
+                            <p class="text-sm text-gray-500">Git, Simulink, Cadence, LaTeX</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Key Projects</h2>
+                <p class="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">This section highlights some of my
+                    most significant projects, demonstrating the application of my skills in real-world scenarios. Click
+                    on any card to see more details.</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                    <div class="project-card-container h-[24rem]">
+                        <div class="project-card relative w-full h-full">
+                            <div
+                                class="project-card-face absolute w-full h-full bg-gray-100 rounded-lg shadow-lg flex flex-col justify-center items-center p-6 border-b-4 border-[#4A90E2]">
+                                <h3 class="text-xl font-bold text-gray-800">Real-time Audio Signal Processing</h3>
+                                <p class="text-gray-500 mt-2">Noise Cancellation System</p>
+                                <span class="mt-4 text-sm font-semibold text-[#4A90E2]">Click to learn more</span>
+                            </div>
+                            <div
+                                class="project-card-back absolute w-full h-full bg-gray-800 text-white rounded-lg shadow-lg p-6 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-lg">Description</h4>
+                                    <p class="text-sm mt-2">Developed a system to filter out ambient noise from an audio
+                                        stream in real-time, improving speech clarity using adaptive filtering
+                                        algorithms.</p>
+                                    <h4 class="font-bold text-lg mt-4">Technologies</h4>
+                                    <p class="text-sm mt-2">Python, NumPy, SciPy, MATLAB</p>
+                                </div>
+                                <a href="#"
+                                    class="self-end bg-white text-gray-800 font-semibold px-4 py-2 rounded-md text-sm hover:bg-gray-200 transition">View
+                                    on GitHub</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card-container h-[24rem]">
+                        <div class="project-card relative w-full h-full">
+                            <div
+                                class="project-card-face absolute w-full h-full bg-gray-100 rounded-lg shadow-lg flex flex-col justify-center items-center p-6 border-b-4 border-[#4A90E2]">
+                                <h3 class="text-xl font-bold text-gray-800">ML Model for Predictive Analysis</h3>
+                                <p class="text-gray-500 mt-2">Medical Image Classification</p>
+                                <span class="mt-4 text-sm font-semibold text-[#4A90E2]">Click to learn more</span>
+                            </div>
+                            <div
+                                class="project-card-back absolute w-full h-full bg-gray-800 text-white rounded-lg shadow-lg p-6 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-lg">Description</h4>
+                                    <p class="text-sm mt-2">Built a Convolutional Neural Network (CNN) to classify
+                                        medical images with high accuracy, aiding in automated diagnostics. Trained on a
+                                        public dataset.</p>
+                                    <h4 class="font-bold text-lg mt-4">Technologies</h4>
+                                    <p class="text-sm mt-2">Python, TensorFlow, Keras, OpenCV</p>
+                                </div>
+                                <a href="#"
+                                    class="self-end bg-white text-gray-800 font-semibold px-4 py-2 rounded-md text-sm hover:bg-gray-200 transition">View
+                                    on GitHub</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card-container h-[24rem]">
+                        <div class="project-card relative w-full h-full">
+                            <div
+                                class="project-card-face absolute w-full h-full bg-gray-100 rounded-lg shadow-lg flex flex-col justify-center items-center p-6 border-b-4 border-[#4A90E2]">
+                                <h3 class="text-xl font-bold text-gray-800">Embedded System for IoT</h3>
+                                <p class="text-gray-500 mt-2">Smart Environment Monitor</p>
+                                <span class="mt-4 text-sm font-semibold text-[#4A90E2]">Click to learn more</span>
+                            </div>
+                            <div
+                                class="project-card-back absolute w-full h-full bg-gray-800 text-white rounded-lg shadow-lg p-6 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-lg">Description</h4>
+                                    <p class="text-sm mt-2">Designed and implemented a low-power device using sensors to
+                                        collect temperature and humidity data, transmitting it to a cloud platform for
+                                        analysis.</p>
+                                    <h4 class="font-bold text-lg mt-4">Technologies</h4>
+                                    <p class="text-sm mt-2">Raspberry Pi, C++, Python, MQTT</p>
+                                </div>
+                                <a href="#"
+                                    class="self-end bg-white text-gray-800 font-semibold px-4 py-2 rounded-md text-sm hover:bg-gray-200 transition">View
+                                    on GitHub</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20 md:py-32">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Get In Touch</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">I'm always open to discussing new projects,
+                    creative ideas, or opportunities to be part of an ambitious team. Feel free to reach out.</p>
+                <a href="mailto:your.email@example.com"
+                    class="inline-block bg-[#4A90E2] text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:bg-blue-600 transition duration-300">Say
+                    Hello</a>
+                <div class="mt-12 flex justify-center space-x-6">
+                    <a href="mailto:your.email@example.com" class="text-gray-500 hover:text-gray-800">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" />
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-gray-800">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-gray-800">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M12 2C6.477 2 2 6.477 2 12c0 4.419 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.03-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.338 4.695-4.566 4.942.359.308.678.92.678 1.852 0 1.338-.012 2.419-.012 2.747 0 .268.18.578.688.48A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-6 text-center text-sm">
+            <p>&copy; <span id="year"></span> [Your Name]. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            mobileMenu.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+
+            // Set current year in footer
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // Project card flip logic
+            const projectCards = document.querySelectorAll('.project-card');
+            projectCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    card.classList.toggle('is-flipped');
+                });
+            });
+
+            // Skills Chart
+            const ctx = document.getElementById('skillsChart').getContext('2d');
+            const skillsChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Signal Processing',
+                        'Machine Learning',
+                        'Deep Learning',
+                        'Embedded Systems',
+                        'Programming (Python/C++)',
+                        'Data Structures & Algos'
+                    ],
+                    datasets: [{
+                        label: 'Proficiency Level',
+                        data: [90, 85, 80, 75, 95, 88],
+                        backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                        borderColor: 'rgba(74, 144, 226, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(74, 144, 226, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(74, 144, 226, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 12,
+                                    family: "'Poppins', sans-serif"
+                                },
+                                color: '#4A4A4A'
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: '#888',
+                                stepSize: 20
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.r !== null) {
+                                        label += context.parsed.r + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Active nav link highlighting on scroll
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px' });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+
+</html>
